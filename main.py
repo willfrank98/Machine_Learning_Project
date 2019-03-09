@@ -1,19 +1,25 @@
 import pandas as pd
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.linear_model import Perceptron
+import gc
+from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
+from sklearn.linear_model import SGDClassifier, Perceptron
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 
-data = pd.read_csv("combined_data.csv")
+data = pd.read_csv("Data/combined_data_us.csv")
 
-train = data[data['Date'] < '2018-01-02']
-test = data[data['Date'] > '2017-12-29']
 
-vectorizer = CountVectorizer(ngram_range=(1,2))
-basictrain = vectorizer.fit_transform(train['Headlines'])
+train = data.sample(frac=.8)
+test = data.drop(train.index)
 
-basicmodel = Perceptron()
-basicmodel = basicmodel.fit(basictrain, train['Label'])
+vectorizer = CountVectorizer(ngram_range=(1,1), max_df=0.9)
+train_vt = vectorizer.fit_transform(train['Headlines'])
 
-basictest = vectorizer.transform(test['Headlines'])
+model = Perceptron(n_iter='1000', tol='1e-3')
+model = model.fit(train_vt, train['Label'])
 
-score = basicmodel.score(basictest, test['Label'])
-print(score)
+test_vt = vectorizer.transform(test['Headlines'])
+
+train_score = model.score(train_vt, train['Label'])
+test_score = model.score(test_vt, test['Label'])
+print(train_score)
+print(test_score)
