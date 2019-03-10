@@ -49,19 +49,19 @@ for i in range(1, 2000):
     new_rows = [[] for i in range(10)]
     j = 0
     for time in html.select('.news-headline-list .timestamp'):
-        time = time.text.replace(',', ' ')
+        time = time.text.replace(',', '_')
         new_rows[j].append(time)
         j += 1
 
     j = 0
     for headline in html.select('.news-headline-list h3.story-title')[:10]:
-        text = headline.text.strip().replace(',', ' ')
+        text = headline.text.strip().replace(',', '_')
         new_rows[j].append(text)
         j += 1
 
     j = 0
     for summary in html.select('.news-headline-list .story-content p')[:10]:
-        text = summary.text.replace('\n', ' ').replace(',', ' ')
+        text = summary.text.replace('\n', ' ').replace(',', '_')
         new_rows[j].append(text)
         j += 1
 

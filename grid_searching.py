@@ -9,17 +9,25 @@ from sklearn.model_selection import GridSearchCV
 from pprint import pprint
 from time import time
 
-data = pd.read_csv("Data/combined_data_us.csv")
+data = pd.read_csv("Data/combined_data_us2.csv")
 
-pipeline = Pipeline([('vect', CountVectorizer()), ('tfidf', TfidfTransformer(use_idf=True)), ('clf', Perceptron())])
+pipeline = Pipeline([('vect', CountVectorizer(max_df=0.6, ngram_range=(1, 4), strip_accents='unicode')), 
+                     ('tfidf', TfidfTransformer(norm='l2', sublinear_tf=False, use_idf=False)), 
+                     ('clf', Perceptron(penalty='l2', alpha=0.0001, max_iter=25))
+                    ])
+
 parameters = {
-    'vect__max_df': (0.6, 0.7, 0.75),
+    # 'vect__max_df': (0.59, 0.6, 0.61),
+    # 'vect__strip_accents': ('ascii', 'unicode', None),
     # 'vect__max_features': (None),
-    'vect__ngram_range': ((2, 4), (1, 4)),
+    # 'vect__ngram_range': ((2, 5), (1, 4)),
     # 'tfidf__use_idf': (True, False),
-    # 'tfidf__norm': ('l1'),
-    # 'clf__max_iter': (5, 50, 500),
-    'clf__tol': (1e-3, 1e-4),
+    # 'tfidf__sublinear_tf': (True, False),
+    # 'tfidf__norm': ('l1', 'l2', None),
+    'clf__max_iter': (27, 30, 33),
+    # 'clf__tol': (0.1, 0.01, 0.001),
+    # 'clf__penalty': (None, 'l2', 'l1', 'elasticnet'),
+    # 'clf__alpha': (0.001, 0.0001, 0.00001),
 }
 
 grid_search = GridSearchCV(pipeline, parameters, cv=5, n_jobs=-1, verbose=1)
