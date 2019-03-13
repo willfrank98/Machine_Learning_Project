@@ -21,13 +21,19 @@ train_vec = vector.fit_transform(train['Headlines'])
 train_tf = tfidf.fit_transform(train_vec)
 clf = clf.fit(train_tf, train['Label'])
 
-words = vector.get_feature_names()
-coeffs = clf.coef_.tolist()[0]
-coeffdf = pd.DataFrame({'Word' : words, 
-                        'Coefficient' : coeffs})
-coeffdf = coeffdf.sort_values(['Coefficient', 'Word'], ascending=[0, 1])
-print(str(coeffdf.head(10)))
-print(str(coeffdf.tail(10)))
+test_vec = vector.transform(test['Headlines'])
+test_tf = tfidf.transform(test_vec)
+
+train_score = clf.score(train_tf, train['Label'])
+test_score = clf.score(test_tf, test['Label'])
+
+# words = vector.get_feature_names()
+# coeffs = clf.coef_.tolist()[0]
+# coeffdf = pd.DataFrame({'Word' : words, 
+#                         'Coefficient' : coeffs})
+# coeffdf = coeffdf.sort_values(['Coefficient', 'Word'], ascending=[0, 1])
+# print(str(coeffdf.head(10)))
+# print(str(coeffdf.tail(10)))
 
 vectorizer = CountVectorizer(max_df=0.6, ngram_range=(1, 4), strip_accents='unicode')
 train_vt = vectorizer.fit_transform(train['Headlines'])
