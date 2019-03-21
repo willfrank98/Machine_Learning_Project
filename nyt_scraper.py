@@ -5,7 +5,7 @@ import time
 key = 'fPBRdiPMKv8E4lUH4knZ0EhzxzpuB3J8'
 
 t0 = time.time() - 6
-for year in range(2015, 2016):
+for year in range(1990, 2000):
     output = open('Data/NYT/nyt_' + str(year) + '.csv', 'w', encoding='utf-8')
     output.write('Date;Headline;Abstract;News Desk;Doc Type;Material Type;Lead Paragraph\n')
     for month in range(1, 13):
