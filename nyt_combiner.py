@@ -1,38 +1,59 @@
-#from nltk.stem.snowball import SnowballStemmer
-from textblob import TextBlob
+import pandas as pd
+from re import findall
 
+#defines the years to combine
+years = range(1995, 2019)
 
-years = range(2000, 2016)
+output = open('Data/nyt_busfin_' + str(years[0]) + '-' + str(years[-1]) + '.csv', 'w')
+output.write('Date;Headline;\n')
 
-output = open('Data/nyt_busfin_' + str(years[0]) + '-' + str(years[-1]) + '.csv', 'w', encoding='utf-8')
-output.write('Date;Headline;Polarity;Subjectivity\n')
+in_desks = {}
+out_desks = {}
 
+# iterates through each year
 for year in years:
-    in_year = open('Data/NYT/nyt_' + str(year) + '.csv', encoding='utf-8')
-    in_year.readline()
-    for line in in_year:
-        split_line = line.split(';')
-        if len(split_line) < 7:
+    # loads data into dataframe and sorts by date
+    # the NYT api sometimes returns articles imperfectly ordered by date
+    in_year = pd.read_csv('Data/NYT/nyt_' + str(year) + '.csv', sep=';', error_bad_lines=False).sort_values('Date')
+    in_year = in_year.values.tolist()
+    for article in in_year:
+        # re-evaluate this tree if choosing non-healines #
+        # throws out empty/incomplete articles
+        if len(article) < 7:
             continue
-        if split_line[1] == 'None':
+        if article[1] == 'None' or type(article[1]) is not str:
             continue
-        if split_line[3] != 'business/financial desk':
+        if type(article[3]) is not str:
             continue
-        if split_line[1] == 'year-end stock tables':
+        if type(article[6]) is not str:
             continue
-        if split_line[1] == 'key rates':
+        # makes sure article is from certain 'news desks'
+        skip_article = True
+        for word in ['business', 'commerce', 'career', 'invest', 'real estate', 'financ', 'job', 'foreign', 'national']:
+            if word in article[3]:
+                skip_article = False
+                break
+        if skip_article:
+            out_desks[article[3]] = True
             continue
-        if split_line[1] == 'dividend meetings':
+        # These headline'd articles contain no useful information
+        if article[1] == 'year-end stock tables':
             continue
-        if split_line[1] == 'economic calendar':
+        if article[1] == 'key rates':
+            continue
+        if article[1] == 'dividend meetings':
+            continue
+        if article[1] == 'economic calendar':
+            continue
+        if article[1] == 'corrections':
+            continue
+        if len(findall(' ', article[1])) < 2 and article[2] == 'none': # remove for non-headlines
             continue
 
-        lead = split_line[6].strip()
+        in_desks[article[3]] = True
 
-        leadBlob = TextBlob(lead)
+        text = article[1].strip() # headline
 
-        polarity = leadBlob.sentiment.polarity
-        subjectivity = leadBlob.sentiment.subjectivity
-
-        output.write(split_line[0] + ';' + lead + ';' + str(polarity) + ';' + str(subjectivity) + '\n')
+        output.write(article[0] + ';' + text + ';' + '\n')
     print("done " + str(year))
+print('done done')

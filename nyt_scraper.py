@@ -1,12 +1,37 @@
 import requests
 import time
+import re
+from unidecode import unidecode
+
+
+def cleanse(string):
+    string = str(string)
+    if '&#' in string:
+        matches = regex.findall(string)
+        new_matches = []
+        for i in range(len(matches)):
+            if matches[i][0] != 'x':
+                new_matches.append(chr(int(matches[i])))
+            else:
+                new_matches.append(chr(int(matches[i][1:], 16)))
+            matches[i] = '&#' + matches[i] + ';'
+
+        for i in range(len(matches)):
+            string = string.replace(matches[i], new_matches[i])
+
+        string = unidecode(string)
+
+    stripped = ''.join([c for c in string if 0 < ord(c) < 127])
+    return ' '.join(stripped.split()).replace(';', ',').lower()
 
 
 key = 'fPBRdiPMKv8E4lUH4knZ0EhzxzpuB3J8'
+regex = re.compile(r'&#(?!\s)((?:(?!;).)*)(?<!\s);')
+regex2 = re.compile(r'&#.{1,4},')
 
 t0 = time.time() - 6
-for year in range(1990, 2000):
-    output = open('Data/NYT/nyt_' + str(year) + '.csv', 'w', encoding='utf-8')
+for year in range(2010, 2011):
+    output = open('Data/NYT/nyt_' + str(year) + '.csv', 'w')
     output.write('Date;Headline;Abstract;News Desk;Doc Type;Material Type;Lead Paragraph\n')
     for month in range(1, 13):
         # restricts calls to once every 6 seconds
@@ -20,28 +45,28 @@ for year in range(1990, 2000):
         
         for article in docs:
             if 'main' in article['headline']:
-                headline = article['headline']['main']
+                headline = cleanse(article['headline']['main'])
             else:
                 headline = 'None'
             date = article['pub_date']
-            headline = ' '.join(headline.split()).replace(';', ',').lower()
             if 'abstract' in article:
-                abstract = ' '.join(str(article['abstract']).split()).replace(';', ',').lower()
+                abstract = cleanse(article['abstract'])
             else:
                 abstract = 'None'
             if 'news_desk' in article:
-                news_desk = ' '.join(str(article['news_desk']).split()).replace(';', ',').lower()
+                news_desk = cleanse(article['news_desk'])
             else:
                 news_desk = 'None'
-            doc_type = ' '.join(str(article['document_type']).split()).replace(';', ',').lower()
+            doc_type = cleanse(article['document_type'])
             if 'type_of_material' in article:
-                mat_type = ' '.join(str(article['type_of_material']).split()).replace(';', ',').lower()
+                mat_type = cleanse(article['type_of_material'])
             else:
                 mat_type = 'None'
             if 'lead_paragraph' in article:
-                lead_paragraph = ' '.join(str(article['lead_paragraph']).split()).replace(';', ',').lower()
+                lead_paragraph = cleanse(article['lead_paragraph'])
             else:
-                lead_paragraph = ' '.join(str(article['snippet']).split()).replace(';', ',').lower()
+                lead_paragraph = cleanse(article['snippet'])
+
             output.write(date + ';' + headline + ';' + abstract + ';' + news_desk + ';' + doc_type + ';' + mat_type + ';' + lead_paragraph + '\n')
 
         print('done ' + str(month) + '/' + str(year))
