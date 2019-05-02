@@ -30,18 +30,7 @@ model.compile(optimizer='adadelta', loss='mse')
 
 ## Train/Eval NN ##
    
-for _ in range(10):
+for _ in range(15):
     model.fit(train_x.values, train_y.values, epochs=1)
 
     score = model.evaluate(test_x.values, test_y.values)
-
-    predictions = model.predict(test_x.values)
-    right = 0.0
-    for i in range(len(predictions)):
-        # pred_dict[str(predictions[i])] = True
-        if predictions[i] >= 0 and test_y.values[i] >= 0:
-            right += 1
-        if predictions[i] < 0 and test_y.values[i] < 0:
-            right += 1
-
-    print(right/len(test_y))

@@ -13,7 +13,7 @@ data['Label'] = data['prev10Day'].shift(-10)
 data = data[:-10]
 
 # split into train (2005-2016) and test (2017-2018)
-split = 695+347+347+347+347+347+347+347
+split = 3021
 train = data[:split]
 test = data[split:]
 del data
