@@ -2,7 +2,7 @@ import pandas as pd
 from re import findall
 
 #defines the years to combine
-years = range(1995, 2019)
+years = range(2010, 2019)
 
 output = open('Data/nyt_busfin_' + str(years[0]) + '-' + str(years[-1]) + '.csv', 'w')
 output.write('Date;Headline;\n')
@@ -54,6 +54,6 @@ for year in years:
 
         text = article[1].strip() # headline
 
-        output.write(article[0] + ';' + text + ';' + '\n')
+        output.write(article[0][:10] + ';' + text + ';' + '\n')
     print("done " + str(year))
 print('done done')
