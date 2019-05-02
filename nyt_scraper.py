@@ -25,12 +25,12 @@ def cleanse(string):
     return ' '.join(stripped.split()).replace(';', ',').lower()
 
 
-key = 'fPBRdiPMKv8E4lUH4knZ0EhzxzpuB3J8'
+key = 'API_KEY_HERE'
 regex = re.compile(r'&#(?!\s)((?:(?!;).)*)(?<!\s);')
 regex2 = re.compile(r'&#.{1,4},')
 
 t0 = time.time() - 6
-for year in range(2010, 2011):
+for year in range(2005, 2019):
     output = open('Data/NYT/nyt_' + str(year) + '.csv', 'w')
     output.write('Date;Headline;Abstract;News Desk;Doc Type;Material Type;Lead Paragraph\n')
     for month in range(1, 13):

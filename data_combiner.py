@@ -1,27 +1,18 @@
 from dateutil.parser import parse
 from pytz import UTC
 import queue
-from textblob import TextBlob
 
-years = '2010-2018'
+years = '2005-2018'
 desk = 'busfin' # business/financial desk
 news_input_list = list(open('Data/nyt_' + desk + '_' + years + '.csv'))
 DJI_list = list(open("Data/^DJI.csv"))[1:]
 
 output = open('Data/combined_' + desk + '_' + years + '.csv', "w")
-output.write("Date;Label;prev1Day;prev2Day;prev3Day;prev4Day;prev5Day;prev6Day;prev7Day;prev8Day;prev9Day;prev10Day;prevVolume;PrevHigh;PrevLow;MCD;WBA;MRK;AAPL;MMM;BA;JNJ;MSFT;IBM;CVX;UTX;TRV;JPM;CSCO;GS;NKE;KO;PFE;V;VZ;HD;AXP;WMT;DIS;XOM;CAT;PG;UNH;INTC;Text\n")
-
-ticker_list = ['MCD', 'WBA', 'MRK', 'AAPL', 'MMM', 'BA', 'JNJ', 'MSFT', 'IBM', 'CVX', 'UTX', 'TRV', 'JPM', 'CSCO', 'GS', 'NKE', 'KO', 'PFE', 'V', 'VZ', 'HD', 'AXP', 'WMT', 'DIS', 'XOM', 'CAT', 'PG', 'UNH', 'INTC']
-stocks_list = []
-for ticker in ticker_list:
-    stocks_list.append(list(open('Data/Stocks/' + ticker + '.csv'))[1:])
+output.write("Date;Label;prev1Day;prev2Day;prev3Day;prev4Day;prev5Day;prev6Day;prev7Day;prev8Day;prev9Day;prev10Day;prevVolume;PrevHigh;PrevLow;Text\n")
 
 prevDayLine = queue.Queue()
 
 djiPrevDays = [queue.Queue() for _ in range(10)]
-
-stocksPrevDays = [queue.Queue() for _ in range(len(ticker_list))]
-stockLineTrackers = dict(zip(ticker_list, [0 for _ in range(len(stocks_list))]))
 
 news_line_counter = 1
 # iterates based on stock market days
@@ -68,25 +59,6 @@ for line in range(len(DJI_list)):
 
     prevDayLine.put(stock_day)
 
-    # previous 10 day's performance of the 29 stocks (excluding DOW) that make up DJIA
-    stocks = ''
-    for i in range(len(stocksPrevDays)):
-        if stocksPrevDays[i].qsize() > 9:
-            stocks += str((float(stocks_list[i][stockLineTrackers[ticker_list[i]]][1]) - float(stocksPrevDays[i].get()))/float(stock_day[1])) + ';'
-        else:
-            stocks += 'None' + ';'
-
-    for i in range(len(stocksPrevDays)):
-        ticker_split = stocks_list[i][stockLineTrackers[ticker_list[i]]].split(',')
-        ticker_date = parse(ticker_split[0]).replace(tzinfo=UTC)
-        while ticker_date < p_date:
-            stockLineTrackers[ticker_list[i]] += 1
-            ticker_split = stocks_list[i][stockLineTrackers[ticker_list[i]]].split(',')
-            ticker_date = parse(ticker_split[0]).replace(tzinfo=UTC)
-        if ticker_date == p_date:
-            stocksPrevDays[i].put(ticker_split[1])
-            stockLineTrackers[ticker_list[i]] += 1
-
     # skips stock day lines until they catch up to next news day
     if news_date > p_date:
         continue
@@ -106,7 +78,7 @@ for line in range(len(DJI_list)):
         else:
             break
 
-    string_to_print = stock_date + ';' + str(diffCat) + ';' + prevDays + prevLine + stocks + headlines + '\n'
+    string_to_print = stock_date + ';' + str(diffCat) + ';' + prevDays + prevLine + headlines + '\n'
 
     if 'None' not in string_to_print:
         output.write(string_to_print)

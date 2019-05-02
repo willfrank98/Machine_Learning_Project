@@ -2,7 +2,7 @@ import pandas as pd
 from re import findall
 
 #defines the years to combine
-years = range(2010, 2019)
+years = range(2005, 2019)
 
 output = open('Data/nyt_busfin_' + str(years[0]) + '-' + str(years[-1]) + '.csv', 'w')
 output.write('Date;Headline;\n')

@@ -2,19 +2,20 @@ import pandas as pd
 import numpy as np
 from re import sub
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import RobustScaler
 
 ## Load/Format Data ##
-years = '2010-2018'
+years = '2005-2018'
 data = pd.read_csv('Data/combined_busfin_' + years + '.csv', sep=';', index_col=False)
 
 # set label to be 10-day-out performance
 data['Label'] = data['prev10Day'].shift(-10)
 data = data[:-10]
 
-# split into train (2010-2017) and test (2018)
-train = data[:2009]
-test = data[2009:]
+# split into train (2005-2016) and test (2017-2018)
+split = 695+347+347+347+347+347+347+347
+train = data[:split]
+test = data[split:]
 del data
 
 # tokenize and tfidf 
@@ -64,10 +65,10 @@ feature_names = list(temp_train.columns)
 feature_names.extend(words)
 
 # scale features and labels to gaussian distribution
-scaler = StandardScaler()
+scaler = RobustScaler()
 train_x = scaler.fit_transform(train_x)
-train_y = scaler.fit_transform(train_y.reshape(-1, 1))
 test_x = scaler.transform(test_x)
+train_y = scaler.fit_transform(train_y.reshape(-1, 1))
 test_y = scaler.transform(test_y.reshape(-1, 1))
 
 final_train = pd.DataFrame(train_x, columns=feature_names)
